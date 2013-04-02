@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>tv.putpat.putpat</string>
+	<key>connections</key>
+	<dict>
+		<key>3A19EDA4-8C57-470C-A87B-ACA1AEDAE319</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B85AAB56-226E-4398-91B6-69238757D706</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Volker Racho</string>
+	<key>description</key>
+	<string>Sucht auf Putpat TV nach Musikvideos</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Putpat TV</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>plusspaces</key>
+				<false/>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>B85AAB56-226E-4398-91B6-69238757D706</string>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>0</integer>
+				<key>escaping</key>
+				<integer>4</integer>
+				<key>keyword</key>
+				<string>pp</string>
+				<key>runningsubtext</key>
+				<string>Bitte warten, suche...</string>
+				<key>script</key>
+				<string>require 'net/http'
+				require 'uri'
+				require 'rexml/document'
+				require 'cgi'
+				
+				def search(value)
+				  xml = Net::HTTP.get(URI.parse(&quot;http://www.putpat.tv/ws.xml?method=Asset.search&quot;+
+				                                &quot;&amp;perPage=10&amp;searchterm=#{CGI.escape value}&quot;))
+				  xmlDoc = REXML::Document.new xml
+				  assets = []
+				  xmlDoc.elements.each('assets/asset') do |asset|
+				    assets &lt;&lt; {
+				      :artist=&gt; asset.elements[&quot;display-artist-title&quot;].text,
+				      :title =&gt; asset.elements[&quot;title&quot;].text,
+				      :url   =&gt; &quot;http://www.putpat.tv#{asset.elements[&quot;putpat-url&quot;].text}&quot;
+				    }
+				  end
+				  assets
+				end
+				
+				doc = REXML::Document.new
+				root = doc.add_element &quot;items&quot;
+				
+				search(&quot;{query}*&quot;).each_with_index do |asset, i|
+				  item = root.add_element &quot;item&quot;
+				  item.add_attribute(&quot;uid&quot;, &quot;putpat_#{i}&quot;)
+				  item.add_attribute(&quot;arg&quot;, asset[:url])
+				  item.add_element(&quot;title&quot;).add_text(asset[:title].strip)
+				  item.add_element(&quot;subtitle&quot;).add_text(asset[:artist].strip)
+				  item.add_element(&quot;icon&quot;).add_text(&quot;icon.png&quot;)
+				end
+				
+				doc.write( out_string = &quot;&quot;, -1)
+				puts out_string</string>
+				<key>subtext</key>
+				<string>sucht bei Putpat TV nach Musikvideos</string>
+				<key>title</key>
+				<string>Putpat TV</string>
+				<key>type</key>
+				<integer>2</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>3A19EDA4-8C57-470C-A87B-ACA1AEDAE319</string>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string></string>
+	<key>uidata</key>
+	<dict>
+		<key>3A19EDA4-8C57-470C-A87B-ACA1AEDAE319</key>
+		<dict>
+			<key>ypos</key>
+			<real>10.0</real>
+		</dict>
+		<key>B85AAB56-226E-4398-91B6-69238757D706</key>
+		<dict>
+			<key>ypos</key>
+			<real>10.0</real>
+		</dict>
+	</dict>
+	<key>webaddress</key>
+	<string>http://www.putpat.tv</string>
+</dict>
+</plist>
